@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Titanic Survival Predictor</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 480px; margin: 60px auto; }
+    label { display: block; margin-top: 12px; font-weight: bold; }
+    input, select { width: 100%; padding: 8px; margin-top: 4px; }
+    button { margin-top: 20px; padding: 10px 20px; cursor: pointer; }
+    #result { margin-top: 24px; font-size: 1.2em; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🚢 Titanic Survival Predictor</h1>
+  <form id="predict-form">
+    <label>Passenger Class
+      <select id="pclass">
+        <option value="1">1st</option>
+        <option value="2">2nd</option>
+        <option value="3" selected>3rd</option>
+      </select>
+    </label>
+
+    <label>Sex
+      <select id="sex">
+        <option value="male" selected>Male</option>
+        <option value="female">Female</option>
+      </select>
+    </label>
+
+    <label>Age
+      <input type="number" id="age" value="30" min="0" max="100">
+    </label>
+
+    <label>Siblings/Spouses Aboard
+      <input type="number" id="sibsp" value="0" min="0">
+    </label>
+
+    <label>Parents/Children Aboard
+      <input type="number" id="parch" value="0" min="0">
+    </label>
+
+    <label>Fare
+      <input type="number" id="fare" value="30" min="0" step="0.01">
+    </label>
+
+    <label>Port of Embarkation
+      <select id="embarked">
+        <option value="S" selected>Southampton</option>
+        <option value="C">Cherbourg</option>
+        <option value="Q">Queenstown</option>
+      </select>
+    </label>
+
+    <button type="submit">Predict</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById("predict-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        pclass: parseInt(document.getElementById("pclass").value),
+        sex: document.getElementById("sex").value,
+        age: parseFloat(document.getElementById("age").value),
+        sibsp: parseInt(document.getElementById("sibsp").value),
+        parch: parseInt(document.getElementById("parch").value),
+        fare: parseFloat(document.getElementById("fare").value),
+        embarked: document.getElementById("embarked").value,
+      };
+
+      document.getElementById("result").innerText = "Predicting...";
+
+      try {
+        const res = await fetch("/api/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          document.getElementById("result").innerText = "Error: " + data.error;
+        } else {
+          document.getElementById("result").innerText =
+            data.survived === 1
+              ? `✅ Survived (probability: ${data.probability})`
+              : `❌ Did not survive (probability: ${data.probability})`;
+        }
+      } catch (err) {
+        document.getElementById("result").innerText = "Request failed: " + err;
+      }
+    });
+  </script>
+</body>
+</html>
