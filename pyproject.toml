@@ -6,8 +6,9 @@ dependencies = [
     "scikit-learn",
     "joblib",
     "pandas",
-    "numpy"
+    "numpy",
+    "flask"
 ]
 
 [tool.vercel]
-entrypoint = "api.predict:handler"
+entrypoint = "api.index:app"
